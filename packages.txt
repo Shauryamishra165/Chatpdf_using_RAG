@@ -1,8 +1,8 @@
+evaluate
 langchain_community
-streamlit
-google-generativeai
-python-dotenv
 langchain
 PyPDF2
-faiss-cpu
+bs4
+dotenv
 langchain_google_genai
+google-generativeai
