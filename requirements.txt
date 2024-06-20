@@ -1,3 +1,11 @@
 streamlit
 os
 requests
+evaluate
+langchain_community
+langchain
+PyPDF2
+bs4
+dotenv
+langchain_google_genai
+google-generativeai
