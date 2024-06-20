@@ -1,4 +1,3 @@
-streamlit
 requests
 evaluate
 langchain_community
