@@ -14,8 +14,10 @@ from langchain.chains.question_answering import load_qa_chain
 #saved the Google api key in env file
 # load_dotenv()
 # os.getenv("GOOGLE_API_KEY")
-GOOGLE_API_KEY= "AIzaSyCvw_aGHyJtLxpZ4Ojy8EyaEDtPOzZM29s"
-genai.configure(api_key=GOOGLE_API_KEY)
+os.environ["GOOGLE_API_KEY"] = 'AIzaSyCvw_aGHyJtLxpZ4Ojy8EyaEDtPOzZM29s'
+
+# Retrieve the Google API key from the environment variable
+google_api_key = os.getenv("GOOGLE_API_KEY")
 
 
 def extract_text_from_pdf(pdf_path):
@@ -51,7 +53,7 @@ def get_text_chunks(text):
 
 def get_vector_store(text_chunks):
     # Stored vector embeddings in FAISS vector db
-    embeddings = GoogleGenerativeAIEmbeddings(google_api_key = GOOGLE_API_KEY, model = "models/embedding-001")#model for creating vector embeddings
+    embeddings = GoogleGenerativeAIEmbeddings(google_api_key = google_api_key, model = "models/embedding-001")#model for creating vector embeddings
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")#I have saved the vector database so that I don't have to create and save embeddings agin and again !
 
@@ -66,7 +68,7 @@ def get_conversational_chain():
     Answer:
     """
     # Using gemini-pro model as LLM
-    model = ChatGoogleGenerativeAI(google_api_key = GOOGLE_API_KEY , model="gemini-pro",
+    model = ChatGoogleGenerativeAI(google_api_key = google_api_key , model="gemini-pro",
                              temperature=0.3)
 
     prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
