@@ -12,9 +12,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
 
 #saved the Google api key in env file
-load_dotenv()
-os.getenv("GOOGLE_API_KEY")
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# load_dotenv()
+# os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY= "AIzaSyCvw_aGHyJtLxpZ4Ojy8EyaEDtPOzZM29s"
+genai.configure(api_key=GOOGLE_API_KEY)
 
 
 def extract_text_from_pdf(pdf_path):
