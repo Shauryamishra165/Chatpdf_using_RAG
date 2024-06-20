@@ -51,7 +51,7 @@ def get_text_chunks(text):
 
 def get_vector_store(text_chunks):
     # Stored vector embeddings in FAISS vector db
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")#model for creating vector embeddings
+    embeddings = GoogleGenerativeAIEmbeddings(google_api_key = GOOGLE_API_KEY, model = "models/embedding-001")#model for creating vector embeddings
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")#I have saved the vector database so that I don't have to create and save embeddings agin and again !
 
@@ -66,7 +66,7 @@ def get_conversational_chain():
     Answer:
     """
     # Using gemini-pro model as LLM
-    model = ChatGoogleGenerativeAI(model="gemini-pro",
+    model = ChatGoogleGenerativeAI(google_api_key = GOOGLE_API_KEY , model="gemini-pro",
                              temperature=0.3)
 
     prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
