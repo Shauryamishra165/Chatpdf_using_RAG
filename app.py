@@ -6,7 +6,7 @@ import evaluate
 
 def create_ui():
     st.title("PDF made easy!")
-    st.sidebar.image("image.png", use_column_width=True)
+    # st.sidebar.image("image.png", use_column_width=True)
     st.sidebar.write("### Welcome to PDF made easy!")
     st.sidebar.write("Ask a question below and get instant insights.")
 
