@@ -1,3 +1,4 @@
+pip install langchain_community
 from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 import os
