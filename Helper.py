@@ -10,28 +10,31 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.question_answering import load_qa_chain
+from io import BytesIO
 
 #saved the Google api key in env file
 # load_dotenv()
 # os.getenv("GOOGLE_API_KEY")
-os.environ["GOOGLE_API_KEY"] = 'AIzaSyCvw_aGHyJtLxpZ4Ojy8EyaEDtPOzZM29s'
+os.environ["GOOGLE_API_KEY"] = 'AIzaSyBrihOYLqNk3lB8R2nOSJ-Dau5CzX9VlKg'
 
 # Retrieve the Google API key from the environment variable
 google_api_key = os.getenv("GOOGLE_API_KEY")
 
 
-def extract_text_from_pdf(pdf_path):
-    with open(pdf_path, "rb") as pdfFile:
-        pdfReader = PdfReader(pdfFile)#used pdfReader from pypdf2 to read the pdf
-        numPages = len(pdfReader.pages)
-        # Extracting text from each page
-        all_text = ""
-        for page_num in range(numPages):
-            page = pdfReader.pages[page_num]
-            text = page.extract_text()
-            if text:
-                all_text += text.encode('ascii', 'ignore').decode('ascii') + "\n" # Written this so as ignor Non- Ascii characters.
+def extract_text_from_pdf(pdf_file):
+    # Read the uploaded PDF file from the in-memory bytes stream
+    pdfReader = PdfReader(BytesIO(pdf_file.read()))
+    numPages = len(pdfReader.pages)
+    
+    # Extracting text from each page
+    all_text = ""
+    for page_num in range(numPages):
+        page = pdfReader.pages[page_num]
+        text = page.extract_text()
+        if text:
+            all_text += text.encode('ascii', 'ignore').decode('ascii') + "\n"  # Ignore Non-ASCII characters
     return all_text
+
 
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -60,6 +63,7 @@ def get_vector_store(text_chunks):
 def get_conversational_chain():
     # It is a popular way to instruct the LLM to Give right answers ,So I used it.
     prompt_template = """
+    you are given data from some pdfs  , you have to answer the questions from them . 
     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
     provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
     Context:\n {context}?\n
@@ -68,7 +72,7 @@ def get_conversational_chain():
     Answer:
     """
     # Using gemini-pro model as LLM
-    model = ChatGoogleGenerativeAI(google_api_key = google_api_key , model="gemini-pro",
+    model = ChatGoogleGenerativeAI(google_api_key = google_api_key , model="gemini-2.0-flash-exp",
                              temperature=0.3)
 
     prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
@@ -80,7 +84,7 @@ def user_input(user_question):
     embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")#same model for creating embedding for the query...
     
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)#loaded the previously saved vector db
-    docs = new_db.similarity_search(user_question)#getting all similiar text present in the Database with the query
+    docs = new_db.similarity_search(user_question , k = 15)#getting all similiar text present in the Database with the query
 
     chain = get_conversational_chain()
 
@@ -92,15 +96,15 @@ def user_input(user_question):
     return response , docs
 
     
-def load_in_db():#This function loads all the text and do the pre-processing Stuff !
-    all_text = ""
-    all_text += extract_text_from_pdf('Cracking the Granularity Problem - Siluet Case Study.pdf')
-    all_text += extract_text_from_pdf('Proving Efficacy of Marketing Mix Model through the Difference in Difference (DID) Technique.pdf')
-    all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/marketing-mix-modeling-mmm-101?r=2p7455&utm_campaign=post&utm_medium=web')
-    all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/market-mix-modeling-101-part-2?r=2p7455&utm_campaign=post&utm_medium=web')
-    all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/why-you-cant-rct-marketing-mix-models?r=2p7455&utm_campaign=post&utm_medium=web')
-    all_text += extract_text_from_pdf('Investigation of Marketing Mix Models Business Error using KL Divergence and Chebyshev.pdf')
+# def load_in_db():#This function loads all the text and do the pre-processing Stuff !
+    # all_text = ""
+    # all_text += extract_text_from_pdf('Cracking the Granularity Problem - Siluet Case Study.pdf')
+    # all_text += extract_text_from_pdf('Proving Efficacy of Marketing Mix Model through the Difference in Difference (DID) Technique.pdf')
+    # all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/marketing-mix-modeling-mmm-101?r=2p7455&utm_campaign=post&utm_medium=web')
+    # all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/market-mix-modeling-101-part-2?r=2p7455&utm_campaign=post&utm_medium=web')
+    # all_text += extract_text_from_url('https://open.substack.com/pub/arymalabs/p/why-you-cant-rct-marketing-mix-models?r=2p7455&utm_campaign=post&utm_medium=web')
+    # all_text += extract_text_from_pdf('Investigation of Marketing Mix Models Business Error using KL Divergence and Chebyshev.pdf')
     # print(all_text)
-    text_chunks = get_text_chunks(all_text)
+    # text_chunks = get_text_chunks(all_text)
     # print(text_chunks)
-    get_vector_store(text_chunks)
+    # get_vector_store(text_chunks)
